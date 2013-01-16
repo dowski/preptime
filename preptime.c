@@ -2,26 +2,27 @@
 #include <time.h>
 
 #define FORMAT "%Y/%m/%d %H:%M:%S"
-#define OUTMAX 50
+#define TSMAX 50
+#define LINEMAX 1024
 
 char *current_utc_timestamp(char *out);
 
 int main(int argc, char **argv)
 {
-    char line[1000], out[OUTMAX];
+    char line[LINEMAX], timestamp[TSMAX];
     int c, idx;
 
     idx = 0;
 
     while ((c = getchar()) != EOF) {
         line[idx++] = c;
-        if (c == '\n') {
+        if (c == '\n' || idx == LINEMAX) {
             line[idx] = '\0';
-            if (!current_utc_timestamp(out)) {
+            if (!current_utc_timestamp(timestamp)) {
                 printf("%s: Error formatting the timestamp\n", argv[0]);
                 return 1;
             }
-            printf("%s :: %s", out, line);
+            printf("%s :: %s", timestamp, line);
             idx = 0;
         }
     }
@@ -34,7 +35,7 @@ char *current_utc_timestamp(char *out)
     struct tm *tm;
     now = time(NULL);
     tm = gmtime(&now);
-    if (!strftime(out, OUTMAX, FORMAT, tm)) {
+    if (!strftime(out, TSMAX, FORMAT, tm)) {
         return NULL;
     }
     return out;
